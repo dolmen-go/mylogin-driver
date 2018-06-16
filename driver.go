@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"errors"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
@@ -18,11 +19,19 @@ var (
 )
 
 func (drv Driver) OpenConnector(name string) (driver.Connector, error) {
-	i := strings.IndexByte(name, '/')
+	var path string
+	i := strings.Index(name, "//")
+	if i < 1 {
+		path = mylogin.DefaultFile()
+	} else {
+		path = filepath.FromSlash(name[:i])
+		name = name[i+2:]
+	}
+	i = strings.IndexByte(name, '/')
 	if i < 1 {
 		return nil, errInvalidSyntax
 	}
-	login, err := mylogin.ReadLogin(mylogin.DefaultFile(), []string{name[:i], mylogin.DefaultSection})
+	login, err := mylogin.ReadLogin(path, []string{name[:i], mylogin.DefaultSection})
 	if err != nil {
 		return nil, err
 	}
