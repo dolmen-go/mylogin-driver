@@ -1,3 +1,9 @@
+/*
+
+Connection string syntax:
+
+    [<path>//]<section>/[<database>]
+*/
 package mylogindriver
 
 import (
@@ -21,11 +27,12 @@ var (
 func (drv Driver) OpenConnector(name string) (driver.Connector, error) {
 	var path string
 	i := strings.Index(name, "//")
-	if i < 1 {
-		path = mylogin.DefaultFile()
-	} else {
+	if i >= 0 {
 		path = filepath.FromSlash(name[:i])
 		name = name[i+2:]
+	}
+	if len(path) == 0 {
+		path = mylogin.DefaultFile()
 	}
 	i = strings.IndexByte(name, '/')
 	if i < 1 {
