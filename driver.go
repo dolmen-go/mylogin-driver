@@ -27,12 +27,16 @@ import (
 	"github.com/dolmen-go/mylogin"
 )
 
+// Driver is a database/sql driver.
+//
+// It implements interfaces driver.Driver and driver.DriverContext.
 type Driver struct{}
 
 var (
 	errInvalidSyntax = errors.New("invalid connection string")
 )
 
+// OpenConnector implements interface database/sql/driver.DriverContext.
 func (drv Driver) OpenConnector(name string) (driver.Connector, error) {
 	var path string
 	i := strings.Index(name, "//")
@@ -61,6 +65,7 @@ func (drv Driver) OpenConnector(name string) (driver.Connector, error) {
 	return connector(login.DSN() + dbName + options), nil
 }
 
+// Open implements interface database/sql/driver.Driver.
 func (drv Driver) Open(name string) (driver.Conn, error) {
 	cnt, err := drv.OpenConnector(name)
 	if err != nil {
@@ -69,12 +74,15 @@ func (drv Driver) Open(name string) (driver.Conn, error) {
 	return cnt.Connect(context.TODO())
 }
 
+// connector implements interface database/sql/driver.Connector.
 type connector string
 
+// connector implements interface database/sql/driver.Connector.
 func (cnt connector) Driver() driver.Driver {
 	return Driver{}
 }
 
+// connector implements interface database/sql/driver.Connector.
 func (cnt connector) Connect(context.Context) (driver.Conn, error) {
 	return mysql.MySQLDriver{}.Open(string(cnt))
 }
