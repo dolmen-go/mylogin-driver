@@ -11,6 +11,14 @@ This is just a wrapper around
 a different connection string syntax that allows to read server adress and
 credentials from `~/.mylogin.cnf`.
 
+About mylogin.cnf:
+
+- <https://dev.mysql.com/doc/refman/8.0/en/mysql-config-editor.html>
+- <https://dev.mysql.com/doc/mysql-utilities/1.5/en/mysql-utils-intro-connspec-mylogin.cnf.html>
+
+See also package [github.com/dolmen-go/mylogin](https://godoc.org/github.com/dolmen-go/mylogin)
+that provides low-level access to `~/.mylogin.cnf` reading and writing.
+
 ## Usage
 
 ```go
@@ -30,7 +38,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+   <http://www.apache.org/licenses/LICENSE-2.0>
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
