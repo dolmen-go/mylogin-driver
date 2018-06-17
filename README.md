@@ -8,7 +8,7 @@
 [`database/sql`](https://golang.org/pkg/database/sql/).
 This is just a wrapper around
 [`github.com/go-sql-driver/mysql`](https://github.com/go-sql-driver/mysql) with
-a different connection string syntax that allows to read server adress and
+a different connection string syntax that allows to read server address and
 credentials from `~/.mylogin.cnf`.
 
 About mylogin.cnf:
@@ -16,7 +16,7 @@ About mylogin.cnf:
 - <https://dev.mysql.com/doc/refman/8.0/en/mysql-config-editor.html>
 - <https://dev.mysql.com/doc/mysql-utilities/1.5/en/mysql-utils-intro-connspec-mylogin.cnf.html>
 
-See also package [github.com/dolmen-go/mylogin](https://godoc.org/github.com/dolmen-go/mylogin)
+See also package [`github.com/dolmen-go/mylogin`](https://godoc.org/github.com/dolmen-go/mylogin)
 that provides low-level access to `~/.mylogin.cnf` reading and writing.
 
 ## Usage
