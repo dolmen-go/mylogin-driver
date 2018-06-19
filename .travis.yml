@@ -23,7 +23,7 @@ before_install:
 - cat ~travis/.my.cnf
 
 script:
-- 'echo | mysql_config_editor set -G client_travis -u travis -S $(sed -n "s/^socket = //p" ~/travis/.my.cnf) -p'
+- 'echo | mysql_config_editor set -G client_travis -u travis -S $(sed -n "s/^socket = //p" ~travis/.my.cnf) -p'
 - go test -coverprofile=coverage.txt -covermode=atomic ./...
 
 after_success:
