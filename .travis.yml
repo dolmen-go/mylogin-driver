@@ -9,6 +9,8 @@ go:
 # mysql 5.5 which lacks mysql_config_editor
 dist: trusty
 sudo: false
+services:
+  - mysql
 addons:
   apt:
     packages:
@@ -19,8 +21,11 @@ go_import_path: github.com/dolmen-go/mylogin-driver
 
 before_install:
 - go list
+- mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+- cat ~travis/.my.cnf
 
 script:
+- 'echo | mysql_config_editor set -G client_travis -u travis -p'
 - go test -coverprofile=coverage.txt -covermode=atomic ./...
 
 after_success:
