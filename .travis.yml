@@ -3,8 +3,6 @@ language: go
 go:
 - "tip"
 - "1.10.x"
-- "1.9.x"
-- "1.8.x"
 # Require trusty because the older environment (Ubuntu precise) has only
 # mysql 5.5 which lacks mysql_config_editor
 dist: trusty
@@ -25,7 +23,7 @@ before_install:
 - cat ~travis/.my.cnf
 
 script:
-- 'echo | mysql_config_editor set -G client_travis -u travis -p'
+- 'echo | mysql_config_editor set -G client_travis -u travis -S $(sed -n "s/^socket = //p" ~/travis/.my.cnf) -p'
 - go test -coverprofile=coverage.txt -covermode=atomic ./...
 
 after_success:
