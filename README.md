@@ -21,13 +21,43 @@ that provides low-level access to `~/.mylogin.cnf` reading and writing.
 
 ## Usage
 
+
+
 ```go
 import (
     "database/sql"
     _ "github.com/dolmen-go/mylogin-driver/register"
 )
 
-db := sql.Open("mylogin", "[filepath//]<section>/[<database>]")
+db, err := sql.Open("mylogin", "[filepath//]<section>/[<database>]")
+```
+
+## Example
+
+Here is an example with the
+[public MySQL server provided by ensembl.org](https://www.ensembl.org/info/data/mysql.html).
+
+Create MySQL credentials in a section named `client_ensembl` in `~/.mylogin.cnf`:
+
+```sh
+$ mysql_config_editor set -G client_ensembl -h ensembldb.ensembl.org -P 5306 -u anonymous -p
+$ cat >main.go <<EOF
+package main
+
+import (
+    "database/sql"
+    "fmt"
+    _ "github.com/dolmen-go/mylogin-driver/register"
+)
+
+func main() {
+    db, _ := sql.Open("mylogin", "client_ensembl/")
+    var s string
+    _ = db.QueryRow("SELECT NOW()").Scan(&s)
+    fmt.Println(s)
+}
+EOF
+$ go run main.go
 ```
 
 ## License
