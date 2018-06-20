@@ -27,6 +27,7 @@ script:
 - 'empty -f -i in.fifo -o out.fifo mysql_config_editor set -G client_travis -u travis -S $(sed -n "s/^socket = //p" ~travis/.my.cnf) -p; empty -w -i out.fifo -o in.fifo assword: "\n"; :'
 - echo 'SELECT NOW()' | mysql --login-path=client_travis --batch
 - go test -coverprofile=coverage.txt -covermode=atomic ./...
+- 'cd cmd/mylogin-query && go build && ./mylogin-query client_travis/ "SELECT NOW()"'
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
