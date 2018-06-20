@@ -14,6 +14,7 @@ addons:
     packages:
     # For mysql_config_editor
     - mysql-client-5.6
+    - empty-expect
 
 go_import_path: github.com/dolmen-go/mylogin-driver
 
@@ -23,7 +24,8 @@ before_install:
 - cat ~travis/.my.cnf
 
 script:
-- 'echo | mysql_config_editor set -G client_travis -u travis -S $(sed -n "s/^socket = //p" ~travis/.my.cnf) -p'
+- 'empty -f -i in.fifo -o out.fifo mysql_config_editor set -G client_travis -u travis -S $(sed -n "s/^socket = //p" ~travis/.my.cnf) -p; empty -w -i out.fifo -o in.fifo assword: "\n"'
+- echo 'SELECT NOW()' | mysql --login-path=client_travis --batch
 - go test -coverprofile=coverage.txt -covermode=atomic ./...
 
 after_success:
