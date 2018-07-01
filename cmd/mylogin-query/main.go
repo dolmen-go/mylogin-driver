@@ -97,9 +97,9 @@ func main() {
 
 	flag.Parse()
 
-	if flag.NArg() != 2 {
+	if flag.NArg() < 2 {
 		log.Println(flag.NArg())
-		log.Fatal("usage: [options...] <conn-string> <SQL>")
+		log.Fatal("usage: [options...] <conn-string> <SQL> [args...]")
 	}
 	db, err := sql.Open("mylogin", flag.Arg(0))
 	if err != nil {
@@ -111,7 +111,15 @@ func main() {
 		log.Fatal("Ping:", err)
 	}
 
-	rows, err := db.Query(flag.Arg(1))
+	var args []interface{}
+	if flag.NArg() > 2 {
+		args = make([]interface{}, flag.NArg()-2)
+		for i, a := range flag.Args()[2:] {
+			args[i] = a
+		}
+	}
+
+	rows, err := db.Query(flag.Arg(1), args...)
 	if err != nil {
 		log.Fatal("Query:", err)
 	}
