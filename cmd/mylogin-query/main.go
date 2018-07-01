@@ -53,16 +53,16 @@ func (j *jsonLayout) writeHeader([]string) {
 }
 
 func (j *jsonLayout) writeRow(row []interface{}) error {
-	for i, c := range row {
-		if bin, isBin := c.([]byte); isBin {
-			row[i] = string(bin)
-		}
-	}
 	if j.first {
 		j.baseLayout.w.Write([]byte{' '})
 		j.first = false
 	} else {
 		j.baseLayout.w.Write([]byte{','})
+	}
+	for i, c := range row {
+		if bin, isBin := c.([]byte); isBin {
+			row[i] = string(bin)
+		}
 	}
 	err := j.enc.Encode(row)
 	if err != nil {
@@ -73,6 +73,59 @@ func (j *jsonLayout) writeRow(row []interface{}) error {
 }
 
 func (j *jsonLayout) writeFooter() {
+	j.baseLayout.w.Write([]byte("]\n"))
+}
+
+type jsonObjectLayout struct {
+	baseLayout
+	first bool
+	keys  [][]byte
+}
+
+func newJSONObject(w io.Writer) (layout, error) {
+	return &jsonObjectLayout{baseLayout{w: w}, true, nil}, nil
+}
+
+func (j *jsonObjectLayout) writeHeader(names []string) {
+	keys := make([][]byte, len(names))
+	if len(names) == 0 {
+		panic("No columns")
+	}
+	for i, name := range names {
+		enc, _ := json.Marshal(name)
+		key := make([]byte, 0, 2+len(enc))
+		if i > 0 {
+			key = append(key, ',')
+		}
+		keys[i] = append(append(key, enc...), ':')
+	}
+	j.keys = keys
+	j.baseLayout.w.Write([]byte("[\n"))
+}
+
+func (j *jsonObjectLayout) writeRow(row []interface{}) error {
+	if j.first {
+		j.baseLayout.w.Write([]byte{' ', '{'})
+		j.first = false
+	} else {
+		j.baseLayout.w.Write([]byte{',', '{'})
+	}
+	for i, c := range row {
+		if bin, isBin := c.([]byte); isBin {
+			c = string(bin)
+		}
+		enc, err := json.Marshal(c)
+		if err != nil {
+			return err
+		}
+		j.baseLayout.w.Write(j.keys[i])
+		j.baseLayout.w.Write(enc)
+	}
+	j.baseLayout.w.Write([]byte{'}', '\n'})
+	return nil
+}
+
+func (j *jsonObjectLayout) writeFooter() {
 	j.baseLayout.w.Write([]byte("]\n"))
 }
 
@@ -94,6 +147,7 @@ func declareLayout(name string, help string, builder func(w io.Writer) (layout, 
 
 func main() {
 	declareLayout("json-array", "JSON output: each row is an array", newJSON)
+	declareLayout("json-object", "JSON output: each row is an object with column names as keys", newJSONObject)
 
 	flag.Parse()
 
