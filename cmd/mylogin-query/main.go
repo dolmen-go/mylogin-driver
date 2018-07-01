@@ -3,18 +3,105 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
+	"errors"
+	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
+
+	"github.com/dolmen-go/flagx"
 
 	_ "github.com/dolmen-go/mylogin-driver/register"
 )
 
-func main() {
-	if len(os.Args) != 3 {
-		log.Fatal("usage: <conn-string> <SQL>")
+type layout interface {
+	writeHeader(columns []string)
+	writeRow(row []interface{}) error
+	writeFooter()
+}
+
+type baseLayout struct {
+	w io.Writer
+}
+
+func (baseLayout) writeHeader([]string) {}
+
+func (baseLayout) writeRow(row []interface{}) error {
+	for _, c := range row {
+		fmt.Print(c, " ")
 	}
-	db, err := sql.Open("mylogin", os.Args[1])
+	fmt.Println()
+	return nil
+}
+
+func (baseLayout) writeFooter() {}
+
+type jsonLayout struct {
+	baseLayout
+	enc   *json.Encoder
+	first bool
+}
+
+func newJSON(w io.Writer) (layout, error) {
+	return &jsonLayout{baseLayout{w: w}, json.NewEncoder(w), true}, nil
+}
+
+func (j *jsonLayout) writeHeader([]string) {
+	j.baseLayout.w.Write([]byte("[\n"))
+}
+
+func (j *jsonLayout) writeRow(row []interface{}) error {
+	for i, c := range row {
+		if bin, isBin := c.([]byte); isBin {
+			row[i] = string(bin)
+		}
+	}
+	if j.first {
+		j.baseLayout.w.Write([]byte{' '})
+		j.first = false
+	} else {
+		j.baseLayout.w.Write([]byte{','})
+	}
+	err := j.enc.Encode(row)
+	if err != nil {
+		return err
+	}
+	//j.baseLayout.w.Write([]byte{'\n'})
+	return nil
+}
+
+func (j *jsonLayout) writeFooter() {
+	j.baseLayout.w.Write([]byte("]\n"))
+}
+
+var output layout = &baseLayout{w: os.Stdout}
+
+func declareLayout(name string, help string, builder func(w io.Writer) (layout, error)) {
+	flag.Var(flagx.BoolFunc(func(b bool) error {
+		if !b {
+			return errors.New("can't disable a layout")
+		}
+		l, err := builder(os.Stdout)
+		if err != nil {
+			return err
+		}
+		output = l
+		return nil
+	}), name, help)
+}
+
+func main() {
+	declareLayout("json-array", "JSON output: each row is an array", newJSON)
+
+	flag.Parse()
+
+	if flag.NArg() != 2 {
+		log.Println(flag.NArg())
+		log.Fatal("usage: [options...] <conn-string> <SQL>")
+	}
+	db, err := sql.Open("mylogin", flag.Arg(0))
 	if err != nil {
 		log.Fatal("Open:", err)
 	}
@@ -24,31 +111,45 @@ func main() {
 		log.Fatal("Ping:", err)
 	}
 
-	rows, err := db.Query(os.Args[2])
+	rows, err := db.Query(flag.Arg(1))
 	if err != nil {
 		log.Fatal("Query:", err)
 	}
 	defer rows.Close()
 
-	var rowNum int64
-	for rows.Next() {
-		names, err := rows.Columns()
-		if err != nil {
-			log.Fatal("Columns:", err)
+	if !rows.Next() {
+		if err = rows.Err(); err != nil {
+			log.Fatal("Next:", err)
 		}
+	}
+
+	names, err := rows.Columns()
+	if err != nil {
+		log.Fatal("Columns:", err)
+	}
+	output.writeHeader(names)
+
+	rowNum := int64(1)
+	for {
+		row := make([]interface{}, len(names))
 		pvalues := make([]interface{}, len(names))
 		for i := range pvalues {
-			pvalues[i] = new(interface{})
+			pvalues[i] = &row[i]
 		}
 		if err = rows.Scan(pvalues...); err != nil {
 			log.Fatalf("Scan %d: %v", rowNum, err)
 		}
-		for _, p := range pvalues {
-			fmt.Print(*(p.(*interface{})), " ")
+		if err = output.writeRow(row); err != nil {
+			rows.Close()
+			log.Fatal(err)
 		}
-		fmt.Println()
+		if !rows.Next() {
+			break
+		}
+		rowNum++
 	}
 	if err = rows.Err(); err != nil {
 		log.Fatal("Next:", err)
 	}
+	output.writeFooter()
 }
