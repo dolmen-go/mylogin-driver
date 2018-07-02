@@ -87,19 +87,18 @@ func newJSONObject(w io.Writer) (layout, error) {
 }
 
 func (j *jsonObjectLayout) writeHeader(names []string) {
-	keys := make([][]byte, len(names))
-	if len(names) == 0 {
-		panic("No columns")
-	}
-	for i, name := range names {
-		enc, _ := json.Marshal(name)
-		key := make([]byte, 0, 2+len(enc))
-		if i > 0 {
-			key = append(key, ',')
+	if len(names) > 0 {
+		keys := make([][]byte, len(names))
+		for i, name := range names {
+			enc, _ := json.Marshal(name)
+			key := make([]byte, 0, 2+len(enc))
+			if i > 0 {
+				key = append(key, ',')
+			}
+			keys[i] = append(append(key, enc...), ':')
 		}
-		keys[i] = append(append(key, enc...), ':')
+		j.keys = keys
 	}
-	j.keys = keys
 	j.baseLayout.w.Write([]byte("[\n"))
 }
 
@@ -183,6 +182,10 @@ func main() {
 		if err = rows.Err(); err != nil {
 			log.Fatal("Next:", err)
 		}
+
+		output.writeHeader(nil)
+		output.writeFooter()
+		return
 	}
 
 	names, err := rows.Columns()
