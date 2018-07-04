@@ -172,9 +172,15 @@ func main() {
 		}
 	}
 
-	rows, err := db.Query(flag.Arg(1), args...)
+	// Force a prepared statement to avoid MySQL "text mode" that hides column type
+	stmt, err := db.Prepare(flag.Arg(1))
 	if err != nil {
-		log.Fatal("Query:", err)
+		log.Fatal("Prepare:", err)
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(args...)
+	if err != nil {
+		log.Fatal("Exec:", err)
 	}
 	defer rows.Close()
 
