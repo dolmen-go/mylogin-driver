@@ -30,7 +30,9 @@ import (
 // Driver is a database/sql driver.
 //
 // It implements interfaces driver.Driver and driver.DriverContext.
-type Driver struct{}
+type Driver struct {
+	private struct{} // just to make the internal representation secret.
+}
 
 var (
 	errInvalidSyntax = errors.New("invalid connection string")
