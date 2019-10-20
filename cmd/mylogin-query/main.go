@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -10,6 +11,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 
 	"github.com/dolmen-go/flagx"
 
@@ -164,6 +166,16 @@ func main() {
 		log.Fatal("Ping:", err)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	// interrupt context with SIGTERM (CTRL+C)
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt)
+	go func() {
+		<-sigs
+		cancel()
+	}()
+
 	var args []interface{}
 	if flag.NArg() > 2 {
 		args = make([]interface{}, flag.NArg()-2)
@@ -173,12 +185,12 @@ func main() {
 	}
 
 	// Force a prepared statement to avoid MySQL "text mode" that hides column type
-	stmt, err := db.Prepare(flag.Arg(1))
+	stmt, err := db.PrepareContext(ctx, flag.Arg(1))
 	if err != nil {
 		log.Fatal("Prepare:", err)
 	}
 	defer stmt.Close()
-	rows, err := stmt.Query(args...)
+	rows, err := stmt.QueryContext(ctx, args...)
 	if err != nil {
 		log.Fatal("Exec:", err)
 	}
