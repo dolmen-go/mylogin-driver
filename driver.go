@@ -5,13 +5,13 @@ Connection string syntax:
 
     [<filepath>//]<section>/[<database>]
 
-Default `filepath` is $HOME/.mylogin.cnf or $MYSQL_TEST_LOGIN_FILE. See https://godoc.org/github.com/dolmen-go/mylogin/#DefaultFile.
+Default filepath is $HOME/.mylogin.cnf or $MYSQL_TEST_LOGIN_FILE. See https://pkg.go.dev/github.com/dolmen-go/mylogin/#DefaultFile.
 
 About mylogin.cnf:
     https://dev.mysql.com/doc/refman/8.0/en/mysql-config-editor.html
-	https://dev.mysql.com/doc/mysql-utilities/1.5/en/mysql-utils-intro-connspec-mylogin.cnf.html
+    https://dev.mysql.com/doc/mysql-utilities/1.5/en/mysql-utils-intro-connspec-mylogin.cnf.html
 
-A package that auto-registers the driver is provided in https://godoc.org/github.com/dolmen-go/mylogin-driver/register/.
+A package that auto-registers the driver is provided in https://pkg.go.dev/github.com/dolmen-go/mylogin-driver/register/.
 */
 package mylogindriver
 
