@@ -1,5 +1,5 @@
 /*
-Package register provides auto-registration for mylogin-driver.Driver with name "mylogin".
+Package register provides auto-registration into database/sql for mylogin-driver.Driver with name "mylogin".
 
 Usage:
 
