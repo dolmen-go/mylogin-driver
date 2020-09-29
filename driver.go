@@ -64,7 +64,11 @@ func (drv Driver) OpenConnector(name string) (driver.Connector, error) {
 		options = dbName[i:]
 		dbName = dbName[:i]
 	}
-	return connector(login.DSN() + dbName + options), nil
+	c, err := mysql.MySQLDriver{}.OpenConnector(login.DSN() + dbName + options)
+	if err != nil {
+		return nil, err
+	}
+	return connector{c: c}, nil
 }
 
 // Open implements interface database/sql/driver.Driver.
@@ -77,14 +81,16 @@ func (drv Driver) Open(name string) (driver.Conn, error) {
 }
 
 // connector implements interface database/sql/driver.Connector.
-type connector string
+type connector struct {
+	c driver.Connector
+}
 
-// connector implements interface database/sql/driver.Connector.
+// Driver implements interface database/sql/driver.Connector.
 func (cnt connector) Driver() driver.Driver {
 	return Driver{}
 }
 
-// connector implements interface database/sql/driver.Connector.
-func (cnt connector) Connect(context.Context) (driver.Conn, error) {
-	return mysql.MySQLDriver{}.Open(string(cnt))
+// Connect implements interface database/sql/driver.Connector.
+func (cnt connector) Connect(ctx context.Context) (driver.Conn, error) {
+	return cnt.c.Connect(ctx)
 }
