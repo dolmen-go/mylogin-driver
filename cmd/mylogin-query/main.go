@@ -8,6 +8,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -18,21 +19,24 @@ import (
 	"os/signal"
 
 	"github.com/dolmen-go/flagx"
+	"golang.org/x/text/encoding/unicode"
 
 	_ "github.com/dolmen-go/mylogin-driver/register"
 )
 
 type layout interface {
-	writeHeader(columns []string)
+	writeHeader(columns []string) error
 	writeRow(row []interface{}) error
-	writeFooter()
+	writeFooter() error
 }
 
 type baseLayout struct {
 	w io.Writer
 }
 
-func (baseLayout) writeHeader([]string) {}
+func (baseLayout) writeHeader([]string) error {
+	return nil
+}
 
 func (baseLayout) writeRow(row []interface{}) error {
 	for _, c := range row {
@@ -42,7 +46,64 @@ func (baseLayout) writeRow(row []interface{}) error {
 	return nil
 }
 
-func (baseLayout) writeFooter() {}
+func (baseLayout) writeFooter() error {
+	return nil
+}
+
+type csvLayout struct {
+	baseLayout
+	w   *csv.Writer
+	row []string
+}
+
+func newCSV(w io.Writer) (layout, error) {
+	return &csvLayout{w: csv.NewWriter(w)}, nil
+}
+
+func (l *csvLayout) writeHeader(columns []string) error {
+	if columns == nil {
+		return nil
+	}
+	return l.w.Write(columns)
+}
+
+func (l *csvLayout) writeRow(row []interface{}) error {
+	if l.row == nil {
+		l.row = make([]string, len(row))
+	}
+	for i, c := range row {
+		switch c := c.(type) {
+		case []byte:
+			l.row[i] = string(c)
+		default:
+			l.row[i] = fmt.Sprint(c)
+		}
+	}
+	return l.w.Write(l.row)
+}
+
+func (l *csvLayout) writeFooter() error {
+	l.w.Flush()
+	return l.w.Error()
+}
+
+func newCSVExcel(w io.Writer) (layout, error) {
+	const sep rune = ';'
+
+	/*
+		const utf8BOM = "\xEF\xBB\xBF"
+		_, err := w.Write([]byte(utf8BOM + "sep=" + string(sep) + "\n"))
+	*/
+	w = unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewEncoder().Writer(w)
+	_, err := w.Write([]byte("sep=" + string(sep) + "\n"))
+
+	if err != nil {
+		return nil, err
+	}
+	l, err := newCSV(w)
+	l.(*csvLayout).w.Comma = sep
+	return l, err
+}
 
 type jsonLayout struct {
 	baseLayout
@@ -54,8 +115,9 @@ func newJSON(w io.Writer) (layout, error) {
 	return &jsonLayout{baseLayout{w: w}, json.NewEncoder(w), true}, nil
 }
 
-func (j *jsonLayout) writeHeader([]string) {
-	j.baseLayout.w.Write([]byte("[\n"))
+func (j *jsonLayout) writeHeader([]string) error {
+	_, err := j.baseLayout.w.Write([]byte("[\n"))
+	return err
 }
 
 func (j *jsonLayout) writeRow(row []interface{}) error {
@@ -78,8 +140,9 @@ func (j *jsonLayout) writeRow(row []interface{}) error {
 	return nil
 }
 
-func (j *jsonLayout) writeFooter() {
-	j.baseLayout.w.Write([]byte("]\n"))
+func (j *jsonLayout) writeFooter() error {
+	_, err := j.baseLayout.w.Write([]byte("]\n"))
+	return err
 }
 
 type jsonObjectLayout struct {
@@ -92,7 +155,7 @@ func newJSONObject(w io.Writer) (layout, error) {
 	return &jsonObjectLayout{baseLayout{w: w}, true, nil}, nil
 }
 
-func (j *jsonObjectLayout) writeHeader(names []string) {
+func (j *jsonObjectLayout) writeHeader(names []string) error {
 	if len(names) > 0 {
 		keys := make([][]byte, len(names))
 		for i, name := range names {
@@ -105,7 +168,8 @@ func (j *jsonObjectLayout) writeHeader(names []string) {
 		}
 		j.keys = keys
 	}
-	j.baseLayout.w.Write([]byte("[\n"))
+	_, err := j.baseLayout.w.Write([]byte("[\n"))
+	return err
 }
 
 func (j *jsonObjectLayout) writeRow(row []interface{}) error {
@@ -130,8 +194,9 @@ func (j *jsonObjectLayout) writeRow(row []interface{}) error {
 	return nil
 }
 
-func (j *jsonObjectLayout) writeFooter() {
-	j.baseLayout.w.Write([]byte("]\n"))
+func (j *jsonObjectLayout) writeFooter() error {
+	_, err := j.baseLayout.w.Write([]byte("]\n"))
+	return err
 }
 
 var output layout = &baseLayout{w: os.Stdout}
@@ -153,6 +218,8 @@ func declareLayout(name string, help string, builder func(w io.Writer) (layout, 
 func main() {
 	declareLayout("json-array", "JSON output: each row is an array", newJSON)
 	declareLayout("json-object", "JSON output: each row is an object with column names as keys", newJSONObject)
+	declareLayout("csv", "CSV output", newCSV)
+	declareLayout("csv-Excel", "CSV output, encoded as UTF-16LE with BOM and special Excel header", newCSVExcel)
 
 	flag.Parse()
 
@@ -205,8 +272,12 @@ func main() {
 			log.Fatal("Next:", err)
 		}
 
-		output.writeHeader(nil)
-		output.writeFooter()
+		if err = output.writeHeader(nil); err != nil {
+			log.Fatal(err)
+		}
+		if err = output.writeFooter(); err != nil {
+			log.Fatal(err)
+		}
 		return
 	}
 
@@ -214,7 +285,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Columns:", err)
 	}
-	output.writeHeader(names)
+	if err = output.writeHeader(names); err != nil {
+		log.Fatal(err)
+	}
 
 	rowNum := int64(1)
 	for {
@@ -238,5 +311,7 @@ func main() {
 	if err = rows.Err(); err != nil {
 		log.Fatal("Next:", err)
 	}
-	output.writeFooter()
+	if err = output.writeFooter(); err != nil {
+		log.Fatal(err)
+	}
 }
