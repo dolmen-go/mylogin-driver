@@ -1,6 +1,6 @@
 # mylogin-driver - Go database/sql driver for MySQL loading credentials from ~/.mylogin.cnf
 
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/dolmen-go/mylogin-driver)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/dolmen-go/mylogin-driver)
 [![Travis-CI](https://img.shields.io/travis/dolmen-go/mylogin-driver.svg)](https://travis-ci.org/dolmen-go/mylogin-driver)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dolmen-go/mylogin-driver)](https://goreportcard.com/report/github.com/dolmen-go/mylogin-driver)
 
@@ -16,7 +16,7 @@ About mylogin.cnf:
 - <https://dev.mysql.com/doc/refman/8.0/en/mysql-config-editor.html>
 - <https://dev.mysql.com/doc/mysql-utilities/1.5/en/mysql-utils-intro-connspec-mylogin.cnf.html>
 
-See also package [`github.com/dolmen-go/mylogin`](https://godoc.org/github.com/dolmen-go/mylogin)
+See also package [`github.com/dolmen-go/mylogin`](https://pkg.go.dev/github.com/dolmen-go/mylogin)
 that provides low-level access to `~/.mylogin.cnf` reading and writing.
 
 ## Usage
