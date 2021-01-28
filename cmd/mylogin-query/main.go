@@ -221,11 +221,16 @@ func main() {
 	declareLayout("csv", "CSV output", newCSV)
 	declareLayout("csv-Excel", "CSV output, encoded as UTF-16LE with BOM and special Excel header", newCSVExcel)
 
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s [options...] <mylogin-section>/<database>[?<options>] <SQL> [args...]\n\noptions:\n", os.Args[0])
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
 
-	if flag.NArg() < 2 {
-		log.Println(flag.NArg())
-		log.Fatal("usage: [options...] <conn-string> <SQL> [args...]")
+	if flag.NArg() < 2 || flag.Arg(0) == "" || flag.Arg(1) == "" {
+		flag.Usage()
+		os.Exit(1)
 	}
 	db, err := sql.Open("mylogin", flag.Arg(0))
 	if err != nil {
