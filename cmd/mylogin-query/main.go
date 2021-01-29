@@ -201,18 +201,32 @@ func (j *jsonObjectLayout) writeFooter() error {
 
 var output layout = &baseLayout{w: os.Stdout}
 
-func declareLayout(name string, help string, builder func(w io.Writer) (layout, error)) {
-	flag.Var(flagx.BoolFunc(func(b bool) error {
-		if !b {
-			return errors.New("can't disable a layout")
-		}
-		l, err := builder(os.Stdout)
-		if err != nil {
-			return err
-		}
-		output = l
-		return nil
-	}), name, help)
+func declareLayout(name string, help string, builder interface{}) {
+	switch builder := builder.(type) {
+	case func(io.Writer) (layout, error):
+		flag.Var(flagx.BoolFunc(func(b bool) error {
+			if !b {
+				return errors.New("can't disable a layout")
+			}
+			l, err := builder(os.Stdout)
+			if err != nil {
+				return err
+			}
+			output = l
+			return nil
+		}), name, help)
+	case func(io.Writer, string) (layout, error):
+		flag.Var(flagx.Func(func(opts string) error {
+			l, err := builder(os.Stdout, opts)
+			if err != nil {
+				return err
+			}
+			output = l
+			return nil
+		}), name, help)
+	default:
+		panic(fmt.Errorf("%T", builder))
+	}
 }
 
 func main() {
