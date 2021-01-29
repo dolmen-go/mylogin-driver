@@ -120,6 +120,24 @@ func (j *jsonLayout) writeHeader([]string) error {
 	return err
 }
 
+type jsonHeaderLayout struct {
+	jsonLayout
+}
+
+func newJSONHeader(w io.Writer) (layout, error) {
+	var l jsonHeaderLayout
+	l.w = w
+	l.enc = json.NewEncoder(w)
+	l.first = false
+	return &l, nil
+}
+
+func (j *jsonHeaderLayout) writeHeader(header []string) error {
+	_, err := j.baseLayout.w.Write([]byte("[\n"))
+	j.enc.Encode(header)
+	return err
+}
+
 func (j *jsonLayout) writeRow(row []interface{}) error {
 	if j.first {
 		j.baseLayout.w.Write([]byte{' '})
@@ -231,6 +249,7 @@ func declareLayout(name string, help string, builder interface{}) {
 
 func main() {
 	declareLayout("json-array", "JSON output: each row is an array", newJSON)
+	declareLayout("json-array-header", "JSON output: each row is an array", newJSONHeader)
 	declareLayout("json-object", "JSON output: each row is an object with column names as keys", newJSONObject)
 	declareLayout("csv", "CSV output", newCSV)
 	declareLayout("csv-Excel", "CSV output, encoded as UTF-16LE with BOM and special Excel header", newCSVExcel)
