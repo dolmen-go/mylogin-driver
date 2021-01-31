@@ -111,7 +111,9 @@ type jsonLines struct {
 }
 
 func newJSONLines(w io.Writer) (layout, error) {
-	return jsonLines{baseLayout{w: w}, json.NewEncoder(w)}, nil
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
+	return jsonLines{baseLayout{w: w}, enc}, nil
 }
 
 func (j jsonLines) writeHeader(row []string) error {
@@ -138,7 +140,9 @@ type jsonLayout struct {
 }
 
 func newJSON(w io.Writer) (layout, error) {
-	return &jsonLayout{baseLayout{w: w}, json.NewEncoder(w), true}, nil
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
+	return &jsonLayout{baseLayout{w: w}, enc, true}, nil
 }
 
 func (j *jsonLayout) writeHeader([]string) error {
