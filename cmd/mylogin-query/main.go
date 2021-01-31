@@ -17,8 +17,12 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"reflect"
+	"strconv"
+	"time"
 
 	"github.com/dolmen-go/flagx"
+	"github.com/go-sql-driver/mysql"
 	"golang.org/x/text/encoding/unicode"
 
 	_ "github.com/dolmen-go/mylogin-driver/register"
@@ -357,16 +361,60 @@ func main() {
 	if err = output.writeHeader(names); err != nil {
 		log.Fatal(err)
 	}
+	types, err := rows.ColumnTypes()
+	if err == nil {
+		for i, t := range types {
+			name := t.DatabaseTypeName()
+			if n, ok := t.Length(); ok {
+				name += "(" + strconv.Itoa(int(n)) + ")"
+			}
+			// fmt.Fprintf(os.Stderr, "%d: %q -> %q\n", i, name, t.ScanType())
+		}
+	} else {
+		fmt.Fprintln(os.Stderr, err)
+	}
 
 	rowNum := int64(1)
 	for {
 		row := make([]interface{}, len(names))
 		pvalues := make([]interface{}, len(names))
 		for i := range pvalues {
-			pvalues[i] = &row[i]
+			switch types[i].DatabaseTypeName() {
+			case "CHAR", "VARCHAR", "DATETIME", "DATE", "TIME":
+				// We don't want *sql.RawBytes
+				// TODO check mysql driver behavior with parseDateTime=true
+				pvalues[i] = new(*string)
+			// case "TIMESTAMP":
+			// pvalues[i] = new(*time.Time)
+			default:
+				pvalues[i] = reflect.New(types[i].ScanType()).Interface()
+			}
 		}
 		if err = rows.Scan(pvalues...); err != nil {
 			log.Fatalf("Scan %d: %v", rowNum, err)
+		}
+		for i, v := range pvalues {
+			switch v := v.(type) {
+			case *interface{}:
+			case **string:
+				row[i] = *v
+			case **time.Time:
+				row[i] = *v
+			case *sql.NullTime:
+				if v.Valid {
+					row[i] = v.Time
+				} else {
+					row[i] = nil
+				}
+			case *mysql.NullTime:
+				if v.Valid {
+					row[i] = v.Time
+				} else {
+					row[i] = nil
+				}
+			default:
+				row[i] = reflect.ValueOf(v).Elem().Interface()
+			}
 		}
 		if err = output.writeRow(row); err != nil {
 			rows.Close()
