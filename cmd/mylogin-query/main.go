@@ -105,6 +105,32 @@ func newCSVExcel(w io.Writer) (layout, error) {
 	return l, err
 }
 
+type jsonLines struct {
+	baseLayout
+	enc *json.Encoder
+}
+
+func newJSONLines(w io.Writer) (layout, error) {
+	return jsonLines{baseLayout{w: w}, json.NewEncoder(w)}, nil
+}
+
+func (j jsonLines) writeHeader(row []string) error {
+	j.enc.Encode(row)
+	// _, err := j.w.Write([]byte{'\n'})
+	// return err
+	return nil
+}
+
+func (j jsonLines) writeRow(row []interface{}) error {
+	err := j.enc.Encode(row)
+	if err != nil {
+		return err
+	}
+	return nil
+	//_, err = j.w.Write([]byte{'\n'})
+	//return err
+}
+
 type jsonLayout struct {
 	baseLayout
 	enc   *json.Encoder
@@ -251,6 +277,7 @@ func main() {
 	declareLayout("json-array", "JSON output: each row is an array", newJSON)
 	declareLayout("json-array-header", "JSON output: each row is an array", newJSONHeader)
 	declareLayout("json-object", "JSON output: each row is an object with column names as keys", newJSONObject)
+	declareLayout("json-lines-array", "JSON Lines output: each line is a JSON array with values. First row is headers", newJSONLines)
 	declareLayout("csv", "CSV output", newCSV)
 	declareLayout("csv-Excel", "CSV output, encoded as UTF-16LE with BOM and special Excel header", newCSVExcel)
 
