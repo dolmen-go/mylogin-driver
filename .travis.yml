@@ -1,11 +1,10 @@
 ---
 language: go
 go:
+- 1.15.x
 - "tip"
 - "1.10.x"
-# Require trusty because the older environment (Ubuntu precise) has only
-# mysql 5.5 which lacks mysql_config_editor
-dist: trusty
+dist: bionic
 sudo: false
 services:
   - mysql
@@ -13,7 +12,8 @@ addons:
   apt:
     packages:
     # For mysql_config_editor
-    - mysql-client-5.6
+    # On Ubuntu trusty mysql-client-5.6
+    - mysql-client
     - empty-expect
 
 go_import_path: github.com/dolmen-go/mylogin-driver
