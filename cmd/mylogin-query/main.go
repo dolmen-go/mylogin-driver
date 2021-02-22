@@ -363,7 +363,7 @@ func main() {
 	}
 	types, err := rows.ColumnTypes()
 	if err == nil {
-		for i, t := range types {
+		for _, t := range types {
 			name := t.DatabaseTypeName()
 			if n, ok := t.Length(); ok {
 				name += "(" + strconv.Itoa(int(n)) + ")"
