@@ -400,7 +400,7 @@ func main() {
 				row[i] = *v
 			case **time.Time:
 				row[i] = *v
-			case *sql.NullTime:
+			case *nullTime: // alias to *sql.NullTime
 				if v.Valid {
 					row[i] = v.Time
 				} else {
