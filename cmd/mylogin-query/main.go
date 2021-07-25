@@ -7,6 +7,8 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"database/sql"
 	"encoding/csv"
 	"encoding/json"
@@ -289,6 +291,9 @@ func main() {
 	declareLayout("csv", "CSV output", newCSV)
 	declareLayout("csv-Excel", "CSV output, encoded as UTF-16LE with BOM and special Excel header", newCSVExcel)
 
+	var cacert string
+	flag.StringVar(&cacert, "cacert", "", "certificate authority .pem file which can be referenced with option tls=cacert")
+
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s [options...] <mylogin-section>/<database>[?<options>] <SQL> [args...]\n\noptions:\n", os.Args[0])
 		flag.PrintDefaults()
@@ -299,6 +304,26 @@ func main() {
 	if flag.NArg() < 2 || flag.Arg(0) == "" || flag.Arg(1) == "" {
 		flag.Usage()
 		os.Exit(1)
+	}
+
+	if cacert != "" {
+		buf, err := os.ReadFile(cacert)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s: %v", cacert, err)
+			os.Exit(1)
+		}
+		certs := x509.NewCertPool()
+		if !certs.AppendCertsFromPEM(buf) {
+			fmt.Fprintf(os.Stderr, "%s: invalid certificates", cacert)
+			os.Exit(1)
+		}
+
+		err = mysql.RegisterTLSConfig("cacert", &tls.Config{
+			RootCAs: certs,
+		})
+		if err != nil {
+			panic(fmt.Errorf("AWS Root CA Certs: register error: %s", err))
+		}
 	}
 	db, err := sql.Open("mylogin", flag.Arg(0))
 	if err != nil {
