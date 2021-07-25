@@ -81,7 +81,18 @@ func (l *csvLayout) writeRow(row []interface{}) error {
 		switch c := c.(type) {
 		case []byte:
 			l.row[i] = string(c)
+		case *string:
+			if c != nil {
+				l.row[i] = *c
+			}
+		case sql.RawBytes:
+			if c != nil {
+				l.row[i] = string(c)
+			}
+		case time.Time:
+			l.row[i] = c.Format(time.RFC3339)
 		default:
+			fmt.Printf("%d %T\n", i, c)
 			l.row[i] = fmt.Sprint(c)
 		}
 	}
