@@ -3,13 +3,17 @@ Package mylogindriver provides a database/sql driver for MySQL using credentials
 
 Connection string syntax:
 
-    [<filepath>//]<section>/[<database>]
+    [<filepath>//]<section>/[<database>][?<options>]
 
 Default filepath is $HOME/.mylogin.cnf or $MYSQL_TEST_LOGIN_FILE. See https://pkg.go.dev/github.com/dolmen-go/mylogin/#DefaultFile.
 
 About mylogin.cnf:
     https://dev.mysql.com/doc/refman/8.0/en/mysql-config-editor.html
     https://dev.mysql.com/doc/mysql-utilities/1.5/en/mysql-utils-intro-connspec-mylogin.cnf.html
+
+mylogindriver is opiniated. The following options are set if not explicitely given a value:
+
+    tls=preferred      Enable TLS if the MySQL server supports it. Note that TLS certificates are NOT verified.
 
 A package that auto-registers the driver is provided in https://pkg.go.dev/github.com/dolmen-go/mylogin-driver/register/.
 */
@@ -19,6 +23,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"errors"
+	"net/url"
 	"path/filepath"
 	"strings"
 
@@ -60,11 +65,23 @@ func (drv Driver) OpenConnector(name string) (driver.Connector, error) {
 	var options string
 	dbName := name[i+1:]
 	i = strings.IndexByte(dbName, '?')
-	if i >= 0 {
-		options = dbName[i:]
+	if i >= 0 && i+1 < len(dbName) {
+		options = dbName[i+1:]
 		dbName = dbName[:i]
+		if q, err := url.ParseQuery(options); err == nil {
+			changed := false
+			if q.Get("tls") == "" {
+				q.Set("tls", "preferred")
+				changed = true
+			}
+			if changed {
+				options = q.Encode()
+			}
+		}
+	} else {
+		options = "tls=preferred"
 	}
-	c, err := mysql.MySQLDriver{}.OpenConnector(login.DSN() + dbName + options)
+	c, err := mysql.MySQLDriver{}.OpenConnector(login.DSN() + dbName + "?" + options)
 	if err != nil {
 		return nil, err
 	}
