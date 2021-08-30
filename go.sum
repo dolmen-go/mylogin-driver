@@ -1,6 +1,5 @@
-github.com/dolmen-go/mylogin v0.0.0-20191113223330-6f8fd661d077 h1:bDwGpQD2/eclajm+7V018F4K6sDzHv05Sm28pheseNY=
-github.com/dolmen-go/mylogin v0.0.0-20191113223330-6f8fd661d077/go.mod h1:EoH138uGURqqDK3ozwLmEG83pv2igAUhzHYL3Z9RKw8=
-github.com/go-sql-driver/mysql v1.4.0 h1:7LxgVwFb2hIQtMm87NdgAVfXjnt4OePseqT1tKx+opk=
+github.com/dolmen-go/mylogin v0.0.0-20210829155724-7e5f5ef95d8a h1:ongi7+ODxTXtaGC921H/jsV8bQhdAK7Jf53Ifmdzx/E=
+github.com/dolmen-go/mylogin v0.0.0-20210829155724-7e5f5ef95d8a/go.mod h1:EoH138uGURqqDK3ozwLmEG83pv2igAUhzHYL3Z9RKw8=
 github.com/go-sql-driver/mysql v1.4.0/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
