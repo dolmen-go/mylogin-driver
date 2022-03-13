@@ -95,6 +95,15 @@ func (l *csvLayout) writeRow(row []interface{}) error {
 			if c.Valid {
 				l.row[i] = strconv.FormatInt(c.Int64, 10)
 			}
+		// encoding.TextMarshaler
+		case interface{ MarshalText() ([]byte, error) }:
+			b, err := c.MarshalText()
+			if err != nil {
+				return err
+			}
+			l.row[i] = string(b)
+		case fmt.Stringer:
+			l.row[i] = c.String()
 		default:
 			// fmt.Printf("%d %T\n", i, c)
 			l.row[i] = fmt.Sprint(c)
