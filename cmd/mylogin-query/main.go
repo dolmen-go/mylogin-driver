@@ -91,6 +91,10 @@ func (l *csvLayout) writeRow(row []interface{}) error {
 			}
 		case time.Time:
 			l.row[i] = c.Format(time.RFC3339)
+		case sql.NullInt64:
+			if c.Valid {
+				l.row[i] = strconv.FormatInt(c.Int64, 10)
+			}
 		default:
 			// fmt.Printf("%d %T\n", i, c)
 			l.row[i] = fmt.Sprint(c)
