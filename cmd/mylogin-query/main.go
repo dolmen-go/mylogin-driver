@@ -92,7 +92,7 @@ func (l *csvLayout) writeRow(row []interface{}) error {
 		case time.Time:
 			l.row[i] = c.Format(time.RFC3339)
 		default:
-			fmt.Printf("%d %T\n", i, c)
+			// fmt.Printf("%d %T\n", i, c)
 			l.row[i] = fmt.Sprint(c)
 		}
 	}
