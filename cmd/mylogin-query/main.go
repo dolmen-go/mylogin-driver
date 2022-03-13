@@ -79,6 +79,8 @@ func (l *csvLayout) writeRow(row []interface{}) error {
 	}
 	for i, c := range row {
 		switch c := c.(type) {
+		case nil:
+			// Leave cell empty
 		case []byte:
 			l.row[i] = string(c)
 		case *string:
@@ -105,6 +107,25 @@ func (l *csvLayout) writeRow(row []interface{}) error {
 		case fmt.Stringer:
 			l.row[i] = c.String()
 		default:
+			t := reflect.TypeOf(c)
+			// Generic support for sql.Null* types
+			if t.Kind() == reflect.Struct && t.NumField() == 2 {
+				idx := 0
+				switch "Valid" {
+				case t.Field(0).Name:
+					idx = 1
+					fallthrough
+				case t.Field(1).Name:
+					v := reflect.ValueOf(c)
+					if v.Field(1 - idx).Bool() {
+						l.row[i] = fmt.Sprint(v.Field(idx).Interface())
+					}
+					continue
+				}
+			}
+			if t.Kind() == reflect.Ptr && reflect.ValueOf(c).IsNil() {
+				continue
+			}
 			// fmt.Printf("%d %T\n", i, c)
 			l.row[i] = fmt.Sprint(c)
 		}
