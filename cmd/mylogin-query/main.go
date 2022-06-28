@@ -46,7 +46,12 @@ func (baseLayout) writeHeader([]string) error {
 
 func (baseLayout) writeRow(row []interface{}) error {
 	for _, c := range row {
-		fmt.Print(c, " ")
+		// fmt.Fprintf(os.Stderr, "%T\n", c)
+		v := reflect.ValueOf(c)
+		if v.Type().Kind() == reflect.Ptr && !v.IsNil() {
+			v = v.Elem()
+		}
+		fmt.Print(v, " ")
 	}
 	fmt.Println()
 	return nil
