@@ -7,4 +7,6 @@ require (
 	golang.org/x/text v0.3.2
 )
 
-go 1.12
+require github.com/dolmen-go/mylogin v0.0.0-20211007211255-18ac7793a122 // indirect
+
+go 1.19
