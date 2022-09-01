@@ -1,9 +1,9 @@
 github.com/dolmen-go/flagx v0.0.0-20191126231346-810f1a287077 h1:TlWeiIWZxe8IFlg6nEtd6x2J4FIf9+UHfe2DpyK/Efc=
 github.com/dolmen-go/flagx v0.0.0-20191126231346-810f1a287077/go.mod h1:fNFjBaYSkHYHlSMSiz7jfNj6/edUlBVjfryEVbLlI2I=
-github.com/dolmen-go/mylogin v0.0.0-20211007211255-18ac7793a122 h1:vinZkqYdp8klhsJBOGz4V9JNz5GEBLvjcc3i015I30E=
-github.com/dolmen-go/mylogin v0.0.0-20211007211255-18ac7793a122/go.mod h1:EoH138uGURqqDK3ozwLmEG83pv2igAUhzHYL3Z9RKw8=
-github.com/dolmen-go/mylogin-driver v0.0.0-20220313190020-98de2b6f0648 h1:fT37bOhI3hPiMpHfAFiR+CanUGVuiVfHmsHvyZZ49UI=
-github.com/dolmen-go/mylogin-driver v0.0.0-20220313190020-98de2b6f0648/go.mod h1:u4D3tiyhNh7lxg8hCIUj/lLhTMFlZ5JIKTY8x+1//UI=
+github.com/dolmen-go/mylogin v0.0.0-20220831181557-50d55c0a7e1a h1:BCangZ6AmSzf+jnmbzWwtQz1L4lJk4Fqm9/bNqbfKP0=
+github.com/dolmen-go/mylogin v0.0.0-20220831181557-50d55c0a7e1a/go.mod h1:EoH138uGURqqDK3ozwLmEG83pv2igAUhzHYL3Z9RKw8=
+github.com/dolmen-go/mylogin-driver v0.0.0-20220831181932-11d3afdc6672 h1:pXloa4rggMnvJ09It3I0pOPuAWxf4r7i3zpcllFMiqs=
+github.com/dolmen-go/mylogin-driver v0.0.0-20220831181932-11d3afdc6672/go.mod h1:f9Fhcum1pLrKEGqHbS/iLBb65a1+ak0E6AG8122W8Jk=
 github.com/go-sql-driver/mysql v1.4.0/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
