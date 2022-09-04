@@ -29,7 +29,7 @@ import (
 
 // Driver is a database/sql driver.
 //
-// It implements interfaces driver.Driver and driver.DriverContext.
+// It implements interfaces [database/sql/driver.Driver] and [database/sql/driver.DriverContext].
 type Driver struct {
 	private struct{} // just to make the internal representation secret.
 }
@@ -38,7 +38,7 @@ var (
 	errInvalidSyntax = errors.New("invalid connection string")
 )
 
-// OpenConnector implements interface database/sql/driver.DriverContext.
+// OpenConnector implements interface [database/sql/driver.DriverContext].
 func (drv Driver) OpenConnector(name string) (driver.Connector, error) {
 	var path string
 	i := strings.Index(name, "//")
@@ -71,7 +71,7 @@ func (drv Driver) OpenConnector(name string) (driver.Connector, error) {
 	return connector{c: c}, nil
 }
 
-// Open implements interface database/sql/driver.Driver.
+// Open implements interface [database/sql/driver.Driver].
 func (drv Driver) Open(name string) (driver.Conn, error) {
 	cnt, err := drv.OpenConnector(name)
 	if err != nil {
@@ -80,17 +80,17 @@ func (drv Driver) Open(name string) (driver.Conn, error) {
 	return cnt.Connect(context.TODO())
 }
 
-// connector implements interface database/sql/driver.Connector.
+// connector implements interface [database/sql/driver.Connector].
 type connector struct {
 	c driver.Connector
 }
 
-// Driver implements interface database/sql/driver.Connector.
+// Driver implements interface [database/sql/driver.Connector].
 func (cnt connector) Driver() driver.Driver {
 	return Driver{}
 }
 
-// Connect implements interface database/sql/driver.Connector.
+// Connect implements interface [database/sql/driver.Connector].
 func (cnt connector) Connect(ctx context.Context) (driver.Conn, error) {
 	return cnt.c.Connect(ctx)
 }
