@@ -17,10 +17,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"os/signal"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dolmen-go/flagx"
@@ -356,26 +358,45 @@ func main() {
 		os.Exit(1)
 	}
 
+	dsn := flag.Arg(0)
 	if cacert != "" {
 		buf, err := os.ReadFile(cacert)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s: %v", cacert, err)
 			os.Exit(1)
 		}
+
+		cfgName := "cacert"
+		idx := strings.IndexByte(dsn, '?')
+		if idx == -1 {
+			dsn += "?tls=" + cfgName
+		} else {
+			q, err := url.ParseQuery(dsn[idx+1:])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%q: %v", dsn[idx+1:], err)
+				os.Exit(1)
+			}
+			if cfgNameTmp := q["tls"]; len(cfgNameTmp) >= 1 && len(cfgNameTmp[0]) > 0 {
+				cfgName = cfgNameTmp[0]
+			} else {
+				dsn += "&tls=" + cfgName
+			}
+		}
+
 		certs := x509.NewCertPool()
 		if !certs.AppendCertsFromPEM(buf) {
 			fmt.Fprintf(os.Stderr, "%s: invalid certificates", cacert)
 			os.Exit(1)
 		}
 
-		err = mysql.RegisterTLSConfig("cacert", &tls.Config{
+		err = mysql.RegisterTLSConfig(cfgName, &tls.Config{
 			RootCAs: certs,
 		})
 		if err != nil {
 			panic(fmt.Errorf("AWS Root CA Certs: register error: %s", err))
 		}
 	}
-	db, err := sql.Open("mylogin", flag.Arg(0))
+	db, err := sql.Open("mylogin", dsn)
 	if err != nil {
 		log.Fatal("Open:", err)
 	}
