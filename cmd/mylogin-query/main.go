@@ -1,8 +1,8 @@
 // Small tool for testing the mylogin driver.
 //
-// Install
-//    go get -u github.com/dolmen-go/mylogin-driver
-//    go install github.com/dolmen-go/mylogin-driver/cmd/mylogin-query
+// # Install
+//
+//	go install github.com/dolmen-go/mylogin-driver/cmd/mylogin-query@latest
 package main
 
 import (
