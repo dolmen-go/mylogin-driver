@@ -1,5 +1,5 @@
-github.com/dolmen-go/flagx v0.0.0-20191126231346-810f1a287077 h1:TlWeiIWZxe8IFlg6nEtd6x2J4FIf9+UHfe2DpyK/Efc=
-github.com/dolmen-go/flagx v0.0.0-20191126231346-810f1a287077/go.mod h1:fNFjBaYSkHYHlSMSiz7jfNj6/edUlBVjfryEVbLlI2I=
+github.com/dolmen-go/flagx v0.0.0-20220905084811-0f631a62d7bd h1:YbBsChfO1ipues6C3baQBDZVISQlo2fv0PIET5HbcZ4=
+github.com/dolmen-go/flagx v0.0.0-20220905084811-0f631a62d7bd/go.mod h1:fNFjBaYSkHYHlSMSiz7jfNj6/edUlBVjfryEVbLlI2I=
 github.com/dolmen-go/mylogin v0.0.0-20220831181557-50d55c0a7e1a h1:BCangZ6AmSzf+jnmbzWwtQz1L4lJk4Fqm9/bNqbfKP0=
 github.com/dolmen-go/mylogin v0.0.0-20220831181557-50d55c0a7e1a/go.mod h1:EoH138uGURqqDK3ozwLmEG83pv2igAUhzHYL3Z9RKw8=
 github.com/dolmen-go/mylogin-driver v0.0.0-20220831181932-11d3afdc6672 h1:pXloa4rggMnvJ09It3I0pOPuAWxf4r7i3zpcllFMiqs=
