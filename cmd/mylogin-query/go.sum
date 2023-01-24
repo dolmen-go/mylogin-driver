@@ -5,7 +5,8 @@ github.com/dolmen-go/mylogin v0.0.0-20220831181557-50d55c0a7e1a/go.mod h1:EoH138
 github.com/dolmen-go/mylogin-driver v0.0.0-20220831181932-11d3afdc6672 h1:pXloa4rggMnvJ09It3I0pOPuAWxf4r7i3zpcllFMiqs=
 github.com/dolmen-go/mylogin-driver v0.0.0-20220831181932-11d3afdc6672/go.mod h1:f9Fhcum1pLrKEGqHbS/iLBb65a1+ak0E6AG8122W8Jk=
 github.com/go-sql-driver/mysql v1.4.0/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
-github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
+github.com/go-sql-driver/mysql v1.7.0 h1:ueSltNNllEqE3qcWBTD0iQd3IpL/6U+mJxLkazJ7YPc=
+github.com/go-sql-driver/mysql v1.7.0/go.mod h1:OXbVy3sEdcQ2Doequ6Z5BW6fXNQTmx+9S1MCJN5yJMI=
 golang.org/x/text v0.6.0 h1:3XmdazWV+ubf7QgHSTWeykHOci5oeekaGJBLkrkaw4k=
 golang.org/x/text v0.6.0/go.mod h1:mrYo+phRRbMaCq/xk9113O4dZlRixOauAjOtrjsXDZ8=
