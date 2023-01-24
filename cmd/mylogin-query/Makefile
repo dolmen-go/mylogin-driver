@@ -8,3 +8,8 @@ install:
 upgrade-flagx:
 	$(shell cd $(shell go env GOPATH)/src/github.com/dolmen-go/flagx; $(MAKE) go-get)
 	$(go) mod tidy
+
+upgrade-driver:
+	git push
+	$(shell cd ../..; $(MAKE) go-get)
+	$(go) mod tidy
