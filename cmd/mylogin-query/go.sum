@@ -1,5 +1,5 @@
-filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
-filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
+filippo.io/edwards25519 v1.1.1 h1:YpjwWWlNmGIDyXOn8zLzqiD+9TyIlPhGFG96P39uBpw=
+filippo.io/edwards25519 v1.1.1/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
 github.com/dolmen-go/flagx v0.0.0-20220905084811-0f631a62d7bd h1:YbBsChfO1ipues6C3baQBDZVISQlo2fv0PIET5HbcZ4=
 github.com/dolmen-go/flagx v0.0.0-20220905084811-0f631a62d7bd/go.mod h1:fNFjBaYSkHYHlSMSiz7jfNj6/edUlBVjfryEVbLlI2I=
 github.com/dolmen-go/mylogin v1.0.0 h1:o36Pkyk8QsLc2604UUy1vdSqPJnPGUB1KD/Uri4xsjI=
